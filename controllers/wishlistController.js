@@ -29,7 +29,10 @@ exports.addToWishlist = async (req, res) => {
     productId: req.params.productId,
   });
   try {
-    const newWishlistItem = await wishlistItem.save();
+    const newWishlistItem = await (
+      await wishlistItem.save()
+    ).populate("productId");
+
     res.status(201).json({ success: true, data: newWishlistItem });
   } catch (err) {
     res.status(400).json({ success: false, message: err.message });

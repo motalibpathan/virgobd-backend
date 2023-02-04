@@ -3,8 +3,33 @@ const Product = require("../models/productModel");
 // Get all products
 exports.getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json({ success: true, data: products });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const results = {};
+
+    results.total = await Product.countDocuments().exec();
+
+    if (endIndex < results.total) {
+      results.next = {
+        page: page + 1,
+        limit: limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      results.previous = {
+        page: page - 1,
+        limit: limit,
+      };
+    }
+    results.data = await Product.find()
+      .sort({ _id: -1 })
+      .skip(startIndex)
+      .limit(limit);
+
+    res.json({ success: true, data: results });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -26,11 +51,16 @@ exports.getProduct = async (req, res) => {
 
 // Create a new product
 exports.createProduct = async (req, res) => {
+  if (req?.user.role !== "admin")
+    return res
+      .status(401)
+      .json({ success: false, message: "Unauthorized access" });
   const product = new Product({
     title: req.body.title,
     price: req.body.price,
     image: req.body.image,
-    description: req.body.description,
+    description: req?.body?.description,
+    availableSizes: req.body.availableSizes,
   });
 
   try {

@@ -31,7 +31,7 @@ router.get("/user", requireAuth, getCurrentUser);
 router.get("/user/:id", requireAuth, singleUser);
 
 // update user
-router.patch("/updatedUser/:id", requireAuth, updateUser);
+router.patch("/updateUser/:id", requireAuth, updateUser);
 
 // export router
 module.exports = router;

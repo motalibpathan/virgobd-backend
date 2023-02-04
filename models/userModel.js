@@ -18,7 +18,10 @@ const userSchema = new Schema(
       require: true,
     },
     phone: {
-      type: Number,
+      type: String,
+    },
+    phone2: {
+      type: String,
     },
     avatar: {
       type: String,
@@ -40,7 +43,12 @@ userSchema.statics.signup = async function ({
   password,
   avatar,
 }) {
-  const exists = await this.findOne({ email });
+  let exists;
+  if (phone) {
+    exists = await this.findOne({ phone });
+  } else {
+    exists = await this.findOne({ email });
+  }
 
   // Input field check
   if (!name || !email || !password) {
@@ -49,7 +57,7 @@ userSchema.statics.signup = async function ({
 
   // check the email is exists or not
   if (exists) {
-    throw Error("Email already in use");
+    throw Error("Phone or Email already in use");
   }
 
   // random password generate & add hash in the password
@@ -69,13 +77,13 @@ userSchema.statics.signup = async function ({
 };
 
 // statics login
-userSchema.statics.login = async function (email, password) {
+userSchema.statics.login = async function (phone, password) {
   // Input fields check
-  if (!email || !password) {
+  if (!phone || !password) {
     throw Error("All fields must be filled");
   }
 
-  const user = await this.findOne({ email });
+  const user = await this.findOne({ phone });
 
   if (!user) {
     throw Error("User doesn't exist!");
@@ -85,7 +93,7 @@ userSchema.statics.login = async function (email, password) {
   const match = await bcrypt.compare(password, user.password);
 
   if (!match) {
-    throw Error("Email or password do not match!");
+    throw Error("Phone or password do not match!");
   }
 
   return user;

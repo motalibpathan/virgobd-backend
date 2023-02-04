@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const wishlistRoutes = require("./routes/wishlistRoutes");
+const passwordResetRoutes = require("./routes/passwordResetRoute");
 
 const app = express();
 dotenv.config();
@@ -32,6 +33,7 @@ app.use("/api/auth", userRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/wishlist", wishlistRoutes);
+app.use("/api/reset", passwordResetRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

@@ -27,7 +27,13 @@ const signupUser = async (req, res) => {
 
   try {
     const user = await UserModel.signup({ name, email, password, phone });
-    const { password: pw, __v, createdAt, updatedAt, ...rest } = user;
+    const {
+      password: pw,
+      __v,
+      createdAt,
+      updatedAt,
+      ...rest
+    } = user.toObject();
     const token = createToken({ _id: user._id });
     res.status(200).json({
       success: true,
@@ -51,8 +57,6 @@ const googleSignup = async (req, res) => {
     });
 
     const { email_verified, name, email, picture } = response.payload;
-
-    console.log(response.payload);
 
     if (email_verified) {
       const exist = await UserModel.findOne({ email });
@@ -151,17 +155,23 @@ const facebookSignup = async (req, res) => {
 
 // login controller
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
   try {
-    const user = await UserModel.login(email, password);
+    const user = await UserModel.login(phone, password);
 
     // create a token
     const token = createToken({ _id: user._id });
-    const { password: pw, __v, createdAt, updatedAt, ...rest } = user;
+    const {
+      password: pw,
+      __v,
+      createdAt,
+      updatedAt,
+      ...rest
+    } = user.toObject();
     res.status(200).json({
       success: true,
-      data: { user: rest, email, token },
+      data: { user: rest, token },
       message: "Login successful",
     });
   } catch (error) {
@@ -197,7 +207,8 @@ const singleUser = async (req, res) => {
 
 // get current user
 const getCurrentUser = async (req, res) => {
-  res.send({ status: true, data: { user: req.user } });
+  const { password, ...rest } = req.user.toObject();
+  res.send({ status: true, data: { user: rest } });
 };
 
 // update user
@@ -211,7 +222,7 @@ const updateUser = async (req, res) => {
           name: req.body?.name,
           email: req.body?.email,
           password: req.body?.password,
-          phone: req.body?.phone,
+          phone2: req.body?.phone2,
         },
       },
       {
@@ -219,9 +230,10 @@ const updateUser = async (req, res) => {
         upsert: true,
       }
     );
+    const { password: pw, ...rest } = user.toObject();
     res.status(200).json({
       success: true,
-      data: user,
+      data: rest,
       message: "User updated successfully",
     });
   } catch (error) {

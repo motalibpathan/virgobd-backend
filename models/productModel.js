@@ -17,6 +17,7 @@ const productSchema = new mongoose.Schema(
     description: {
       type: String,
     },
+    availableSizes: [String],
   },
   { timestamps: true }
 );
